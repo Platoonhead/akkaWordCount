@@ -1,4 +1,4 @@
-name := "akka-kip"
+name := "BookMyShow"
 
 version := "1.0"
 
@@ -11,4 +11,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
   "org.scalatest" %% "scalatest" % "3.0.1"
 )
+
     

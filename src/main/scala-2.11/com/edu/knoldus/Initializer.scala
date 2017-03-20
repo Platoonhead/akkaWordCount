@@ -1,31 +1,40 @@
 package com.edu.knoldus
 
 import akka.actor.ActorSystem
-import akka.pattern.ask
-import akka.util.Timeout
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.DurationInt
-import scala.language.postfixOps
-import scala.util.{Failure, Success}
-
+import akka.routing.FromConfig
+import com.typesafe.config.ConfigFactory
 
 object Initializer extends App{
 
-    val system = ActorSystem("WordCountEnvironment")
-    val parentProp = Parent.props
-    val parentRef  = system.actorOf(parentProp)
 
-    val filePath = "DemoFile.txt"
-    implicit val timeOut = Timeout(3000 seconds)
-    val wordProcessing = parentRef ? filePath
+  val people = ConfigFactory.parseString(  // single screen theater,nr-of-instances = 1 ;)
+    """
+      |akka.actor.deployment {
+      | /poolRouter {
+      |   router = balancing-pool
+      |   nr-of-instances = 4
+      | }
+      |}
+    """.stripMargin
+  )
 
-    wordProcessing onComplete {
-        case Success(says) =>println(s"$says")
-        case Failure(msg) =>println("failed due to: " + msg)
-    }
+  val system = ActorSystem("Bollywood",people)
+  val bookMyShowRef  = system.actorOf(BookMyShow.prop)
+  val moviegoer = system.actorOf(FromConfig.props(Moviegoer.prop(bookMyShowRef)),"poolRouter")
 
-    Thread sleep 2000
-    system.terminate
+  moviegoer ! "BookCornerSeat"
+  Thread.sleep(1000)
+  moviegoer ! "BookCornerSeat"
+  Thread.sleep(1000)
+  moviegoer ! "BookCornerSeat"
+  Thread.sleep(1000)
+  moviegoer ! "CancelCornerSeat"
+  Thread.sleep(1000)
+  moviegoer ! "BookCornerSeat"
+  Thread.sleep(1000)
+  moviegoer ! "BookCornerSeat"
+
+
+
 
 }
