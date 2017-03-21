@@ -7,11 +7,11 @@ import com.typesafe.config.ConfigFactory
 object Initializer extends App{
 
 
-  val people = ConfigFactory.parseString(  // single screen theater,nr-of-instances = 1 ;)
+  val people = ConfigFactory.parseString(
     """
       |akka.actor.deployment {
       | /poolRouter {
-      |   router = balancing-pool
+      |   router = round-robin-pool
       |   nr-of-instances = 4
       | }
       |}
@@ -23,18 +23,11 @@ object Initializer extends App{
   val moviegoer = system.actorOf(FromConfig.props(Moviegoer.prop(bookMyShowRef)),"poolRouter")
 
   moviegoer ! "BookCornerSeat"
-  Thread.sleep(1000)
   moviegoer ! "BookCornerSeat"
-  Thread.sleep(1000)
   moviegoer ! "BookCornerSeat"
-  Thread.sleep(1000)
   moviegoer ! "CancelCornerSeat"
-  Thread.sleep(1000)
   moviegoer ! "BookCornerSeat"
-  Thread.sleep(1000)
   moviegoer ! "BookCornerSeat"
-
-
-
+  
 
 }
